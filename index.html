@@ -10,21 +10,42 @@ label{font-size:13px;font-weight:700;color:#555}.top{display:flex;justify-conten
 .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;background:#fff;border-top:1px solid #EEE;display:grid;grid-template-columns:repeat(5,1fr);padding:8px 4px;z-index:50}.nav button{border:0;background:none;font-size:11px;color:#777;cursor:pointer}.nav button.active{color:#E5232E;font-weight:800}
 .page{display:none;padding:4px 16px 20px}.page.active{display:block}#splash{position:fixed;inset:0;background:#fff;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;animation:splashOut .4s ease 3.2s forwards}@keyframes splashOut{to{opacity:0;visibility:hidden}}
 .biglogo{width:110px;height:110px;border-radius:26px;background:#E5232E;color:#fff;display:grid;place-items:center;font-size:58px;font-weight:800}.small{font-size:12px;color:#777}.row{display:flex;gap:10px;align-items:center}.progress{height:10px;background:#F4F5F7;border-radius:999px;overflow:hidden}.progress i{display:block;height:100%;background:#E5232E}.warn{background:#FFF8E6;border:1px solid #FFE29A;border-radius:12px;padding:12px;font-size:13px}.hidden{display:none!important}
-</style><script>function hideSplash(){var s=document.getElementById('splash');if(s)s.style.display='none';}setTimeout(hideSplash,2500);</script></head><body>
+</style>
+<script>
+function __safeShow(p){
+  try{
+    var pages=document.querySelectorAll('.page');
+    for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
+    var el=document.getElementById('page-'+p);
+    if(el) el.classList.add('active');
+    var navs=document.querySelectorAll('.nav button');
+    for(var j=0;j<navs.length;j++) navs[j].classList.toggle('active', navs[j].getAttribute('data-nav')===p);
+    window.scrollTo(0,0);
+  }catch(e){}
+}
+function showPage(p){ __safeShow(p); }
+function guestLogin(){
+  try{ localStorage.setItem('swara_guest','1'); }catch(e){}
+  __safeShow('home');
+}
+function hideSplash(){var s=document.getElementById('splash'); if(s) s.style.display='none';}
+setTimeout(hideSplash,2500);
+</script>
+<script>function hideSplash(){var s=document.getElementById('splash');if(s)s.style.display='none';}setTimeout(hideSplash,2500);</script></head><body>
 <div id="splash" onclick="document.getElementById('splash').style.display='none'"><div class="biglogo">S</div><h1 style="margin:16px 0 2px;font-size:38px;letter-spacing:2px">SWARA</h1><div style="color:#E5232E;font-weight:800">Give AI a Voice.</div><div style="margin-top:6px;font-weight:600">Listen. Understand. Speak. Act.</div><div style="margin-top:42px;color:#777;font-size:12px;letter-spacing:2px">POWERED BY IdeA1</div><button class="btn btn-ghost" style="max-width:280px;margin-top:18px" onclick="document.getElementById('splash').style.display='none';return false;">Lewati &rarr;</button></div>
-<div class="top"><div class="row"><div class="logo">S</div><div><b>SWARA</b><div class="small">Give AI a Voice.</div></div></div><div class="row"><span class="badge" id="geminiBadge">● Gemini: Belum Terhubung</span><button onclick="showPage('account')" style="border:0;background:#F4F5F7;width:38px;height:38px;border-radius:50%;font-weight:800;cursor:pointer" id="avatarBtn">G</button></div></div>
+<div class="top"><div class="row"><div class="logo">S</div><div><b>SWARA</b><div class="small">Give AI a Voice.</div></div></div><div class="row"><span class="badge" id="geminiBadge">● Gemini: Belum Terhubung</span><button onclick="__safeShow('account');return false;" style="border:0;background:#F4F5F7;width:38px;height:38px;border-radius:50%;font-weight:800;cursor:pointer" id="avatarBtn">G</button></div></div>
 
 <section id="page-welcome" class="page active"><div style="text-align:center"><h2>Selamat Datang di SWARA</h2><p class="small">Coba dulu sebagai Guest, atau login untuk simpan permanen.</p></div>
 <div class="card"><label>Email</label><input id="email" placeholder="nama@email.com"><br><br><label>Kata Sandi</label><input id="password" type="password" placeholder="••••••••"><br><br>
 <button class="btn btn-red" onclick="login()">Masuk</button><p style="text-align:center"><a href="#" onclick="forgot();return false">Lupa kata sandi?</a></p><div style="text-align:center;color:#777;font-size:12px">ATAU</div><br>
-<button class="btn btn-white" onclick="googleLogin()">G Continue with Google</button><br><br><button class="btn btn-ghost" onclick="guestLogin()">Lanjut sebagai Tamu</button><br><br><button class="btn btn-ghost" onclick="register()">Belum punya akun? Buat Akun</button>
+<button class="btn btn-white" onclick="googleLogin()">G Continue with Google</button><br><br><button class="btn btn-ghost" onclick="try{localStorage.setItem('swara_guest','1')}catch(e){};document.querySelectorAll('.page').forEach(function(e){e.classList.remove('active')});var h=document.getElementById('page-home');if(h)h.classList.add('active');window.scrollTo(0,0);return false;">Lanjut sebagai Tamu</button><br><br><button class="btn btn-ghost" onclick="register()">Belum punya akun? Buat Akun</button>
 <div class="warn" style="margin-top:12px"><b>Status Tahap 1:</b> <span id="backendStatus">Mode Lokal — Supabase belum dikonfigurasi. Isi SUPABASE_URL di Account &gt; Konfigurasi.</span></div></div><p style="text-align:center;color:#777;font-size:12px">POWERED BY IdeA1</p></section>
 
 <section id="page-home" class="page"><h2>Welcome to SWARA</h2><p class="small">What would you like to create today?</p>
-<div class="hero"><h2>Give Your Ideas a Voice.</h2><p>Create AI voices, talk with intelligent assistants, and build your own AI agents.</p><button class="btn" style="background:#fff;color:#E5232E" onclick="showPage('create')">Create New Voice</button></div>
-<h3>Quick Access</h3><div class="grid2"><div class="card quick" onclick="showPage('create')"><b>Voice Generator</b><p class="small">Turn text into natural AI speech.</p></div><div class="card quick" onclick="showPage('talk')"><b>AI Talk</b><p class="small">Talk with AI in real time.</p></div><div class="card quick" onclick="showPage('agents')"><b>AI Agents</b><p class="small">Explore and create intelligent agents.</p></div><div class="card quick" onclick="showPage('history')"><b>Recent History</b><p class="small">Access your recent activities.</p></div></div>
+<div class="hero"><h2>Give Your Ideas a Voice.</h2><p>Create AI voices, talk with intelligent assistants, and build your own AI agents.</p><button class="btn" style="background:#fff;color:#E5232E" onclick="__safeShow('create');return false;">Create New Voice</button></div>
+<h3>Quick Access</h3><div class="grid2"><div class="card quick" onclick="__safeShow('create');return false;"><b>Voice Generator</b><p class="small">Turn text into natural AI speech.</p></div><div class="card quick" onclick="__safeShow('talk');return false;"><b>AI Talk</b><p class="small">Talk with AI in real time.</p></div><div class="card quick" onclick="__safeShow('agents');return false;"><b>AI Agents</b><p class="small">Explore and create intelligent agents.</p></div><div class="card quick" onclick="__safeShow('history');return false;"><b>Recent History</b><p class="small">Access your recent activities.</p></div></div>
 <h3>My AI Agents</h3><div id="myAgentsHome"></div><h3>Recent Projects</h3><div id="recentHome"></div>
-<h3>Usage Overview</h3><div class="card"><div class="row" style="justify-content:space-between"><span>Available Credits</span><b id="credits">97 / 100</b></div><div class="progress" style="margin:10px 0"><i id="creditBar" style="width:97%"></i></div><p class="small">Paket: <b>Free - Tahap 1</b> • Guest maks 3x/hari, 500 karakter.</p><button class="btn btn-ghost" onclick="showPage('account')">View Usage</button></div></section>
+<h3>Usage Overview</h3><div class="card"><div class="row" style="justify-content:space-between"><span>Available Credits</span><b id="credits">97 / 100</b></div><div class="progress" style="margin:10px 0"><i id="creditBar" style="width:97%"></i></div><p class="small">Paket: <b>Free - Tahap 1</b> • Guest maks 3x/hari, 500 karakter.</p><button class="btn btn-ghost" onclick="__safeShow('account');return false;">View Usage</button></div></section>
 
 <section id="page-create" class="page"><h2>Voice Generator</h2><span class="badge">Provider: Browser TTS (Perangkat) • Gemini TTS belum terhubung</span>
 <div class="card" style="margin-top:12px"><label>Teks</label><textarea id="ttsText" rows="5" maxlength="2000" oninput="updateCount()">Halo, selamat datang di SWARA. Give AI a Voice. Listen, understand, speak, act.</textarea>
@@ -55,12 +76,12 @@ label{font-size:13px;font-weight:700;color:#555}.top{display:flex;justify-conten
 <div class="card"><h3>Subscription</h3><p>Free — Tahap 1. Pembayaran belum aktif.</p><button class="btn btn-ghost" onclick="alert('Billing belum aktif di Tahap 1.')">Billing History</button></div><br>
 <button class="btn btn-white" onclick="logout()">Logout</button><br><br><button class="btn btn-ghost" style="color:#E5232E" onclick="deleteAccount()">Delete Account</button></section>
 
-<nav class="nav"><button onclick="showPage('home')" data-nav="home">🏠<br>Home</button><button onclick="showPage('create')" data-nav="create">🎙️<br>Create</button><button onclick="showPage('talk')" data-nav="talk">💬<br>Talk</button><button onclick="showPage('agents')" data-nav="agents">🤖<br>Agents</button><button onclick="showPage('account')" data-nav="account">👤<br>Account</button></nav>
+<nav class="nav"><button onclick="__safeShow('home');return false;" data-nav="home">🏠<br>Home</button><button onclick="__safeShow('create');return false;" data-nav="create">🎙️<br>Create</button><button onclick="__safeShow('talk');return false;" data-nav="talk">💬<br>Talk</button><button onclick="__safeShow('agents');return false;" data-nav="agents">🤖<br>Agents</button><button onclick="__safeShow('account');return false;" data-nav="account">👤<br>Account</button></nav>
 <script>
 const $=id=>document.getElementById(id);
-let state=JSON.parse(localStorage.getItem('swara_state')||'{}');
+let state={}; try{ state=JSON.parse(localStorage.getItem('swara_state')||'{}'); }catch(e){ state={}; }
 state.projects=state.projects||[];state.agents=state.agents||[{name:'Personal Assistant',desc:'Asisten harian',lang:'ID'},{name:'Business Assistant',desc:'Asisten bisnis',lang:'ID'}];state.credits=state.credits??97;state.user=state.user||{name:'Guest',email:'guest@swara.local',mode:'guest'};
-function save(){localStorage.setItem('swara_state',JSON.stringify(state));renderAll();}
+function save(){ try{ localStorage.setItem('swara_state',JSON.stringify(state)); }catch(e){} try{renderAll();}catch(e){} }
 function hideSplash(){document.getElementById('splash').style.display='none';}setTimeout(hideSplash,2000);
 function showPage(p){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));let el=$('page-'+p);if(el)el.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.nav===p));window.scrollTo(0,0);}
 function guestLogin(){state.user={name:'Guest',email:'guest@swara.local',mode:'guest'};save();showPage('home');}
@@ -71,8 +92,8 @@ function forgot(){alert('Reset password: di production lewat Supabase Auth > For
 function logout(){state.user={name:'Guest',email:'guest@swara.local',mode:'guest'};save();showPage('welcome');}
 function deleteAccount(){if(confirm('Hapus akun & data lokal?')){localStorage.removeItem('swara_state');location.reload();}}
 function clearText(){$('ttsText').value='';updateCount();}function updateCount(){$('charCount').innerText=$('ttsText').value.length+' karakter';}
-function loadVoices(){let v=$('voiceSelect');v.innerHTML='';speechSynthesis.getVoices().forEach((vo,i)=>{let o=document.createElement('option');o.value=i;o.textContent=vo.name+' — '+vo.lang;v.appendChild(o);});}
-speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
+function loadVoices(){ try{ if(!window.speechSynthesis) return; let v=$('voiceSelect'); if(!v) return;v.innerHTML='';speechSynthesis.getVoices().forEach((vo,i)=>{let o=document.createElement('option');o.value=i;o.textContent=vo.name+' — '+vo.lang;v.appendChild(o);});}
+try{ if(window.speechSynthesis){ speechSynthesis.onvoiceschanged=loadVoices; loadVoices(); } }catch(e){}
 let lastText='';function generateVoice(){let t=$('ttsText').value.trim();if(!t)return alert('Isi teks dulu');if(state.user.mode==='guest'&&t.length>500)return alert('Guest maks 500 karakter.');lastText=t;$('genStatus').innerText='Memutar via TTS perangkat...';let u=new SpeechSynthesisUtterance(t);let vs=speechSynthesis.getVoices();if(vs[$('voiceSelect').value])u.voice=vs[$('voiceSelect').value];u.rate=parseFloat($('speed').value);u.volume=parseFloat($('vol').value);speechSynthesis.cancel();speechSynthesis.speak(u);state.credits=Math.max(0,state.credits-1);save();}
 function pauseVoice(){speechSynthesis.pause();}function stopVoice(){speechSynthesis.cancel();}
 function saveProject(){let t=$('ttsText').value.trim();if(!t)return alert('Isi teks dulu');state.projects.unshift({name:t.slice(0,28)||'Voice Project',type:'Voice',date:new Date().toLocaleString('id-ID')});save();alert('Disimpan ke History (lokal).');}
