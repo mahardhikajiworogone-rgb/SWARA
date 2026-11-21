@@ -70,8 +70,8 @@ setTimeout(hideSplash,2500);
 <section id="page-history" class="page"><h2>History</h2><input id="searchHist" placeholder="Cari proyek..." oninput="renderAll()"><br><br><div id="historyList"></div></section>
 
 <section id="page-account" class="page"><h2>Account</h2>
-<div class="card"><b id="profileName">Guest</b><div class="small" id="profileEmail">guest@swara.local</div><br><label>Nama</label><input id="profileNameInput" placeholder="Nama kamu"><br><br><button class="btn btn-ghost" onclick="saveProfile()">Simpan Profil</button></div><br>
-<div class="card"><h3>Konfigurasi Backend (Production)</h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" onclick="saveConfig()">Simpan Konfigurasi</button><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
+<div class="card"><b id="profileName">Guest</b><div class="small" id="profileEmail">guest@swara.local</div><br><label>Nama</label><input id="profileNameInput" placeholder="Nama kamu"><br><br><button class="btn btn-ghost" onclick="saveProfile()">Simpan Profil</button><p class="small" id="profileStatus" style="color:#E5232E;font-weight:700;margin-top:8px"></p></div><br>
+<div class="card"><h3>Konfigurasi Backend (Production)</h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" onclick="saveConfig()">Simpan Konfigurasi</button><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
 <div class="card"><h3>Preferensi</h3><label>Tema</label><select id="themeSel" onchange="setTheme(this.value)"><option value="light">Light (Default)</option><option value="dark">Dark</option></select></div><br>
 <div class="card"><h3>Subscription</h3><p>Free — Tahap 1. Pembayaran belum aktif.</p><button class="btn btn-ghost" onclick="alert('Billing belum aktif di Tahap 1.')">Billing History</button></div><br>
 <button class="btn btn-white" onclick="logout()">Logout</button><br><br><button class="btn btn-ghost" style="color:#E5232E" onclick="deleteAccount()">Delete Account</button></section>
@@ -109,8 +109,29 @@ function renderStep(){let titles=['Basic Information','Personality & Instruction
 let h={1:`<label>Agent Name</label><input id="dName" placeholder="Contoh: Asisten Toko"><br><br><label>Description</label><input id="dDesc" placeholder="Apa tugas agent ini?">`,2:`<label>Personality</label><input placeholder="Ramah, singkat"><br><br><label>System Instructions</label><textarea rows="3" placeholder="Kamu adalah..."></textarea>`,3:`<label>Default Language</label><select><option>Indonesia</option><option>English</option></select><br><br><label>Voice</label><select><option>Voice 1 - Ramah</option><option>Voice 2 - Profesional</option></select>`,4:`<label>Knowledge Base</label><input type="file" accept=".pdf,.txt,.docx" onchange="alert('Tahap 1: file '+this.files[0].name+' dicatat namanya saja. RAG menyusul.')"><p class="small">PDF / TXT / DOCX</p>`,5:`<label>Memory</label><select><option>Aktif</option><option>Nonaktif</option></select>`,6:`<label>Tools & Permissions</label><br><input type="checkbox" checked> Jawab chat<br><input type="checkbox"> Baca knowledge<br><input type="checkbox"> Buat voice`,7:`<input placeholder="Uji: Halo agent"><br><br><button class="btn btn-ghost" onclick="alert('Test: Agent menjawab dengan instruksi yang kamu isi (Mode Lokal).')">Kirim Test</button>`,8:`<p>Klik Lanjut untuk simpan agent ke My Agents (lokal).</p>`}[$('stepBox').innerHTML=h;}
 function nextStep(){if(step<8){step++;renderStep();}else{state.agents.push({name:document.getElementById('dName')?.value||'Agent Baru',desc:document.getElementById('dDesc')?.value||'Agent baru',lang:'ID'});save();$('builder').classList.add('hidden');alert('Agent disimpan!');}}
 function prevStep(){if(step>1){step--;renderStep();}}
-function saveProfile(){state.user.name=$('profileNameInput').value||state.user.name;save();alert('Profil disimpan (lokal).');}
-function saveConfig(){let cfg={supabaseUrl:$('cfgSupabaseUrl').value,supabaseKey:$('cfgSupabaseKey').value,gemini:$('cfgGemini').value};localStorage.setItem('swara_cfg',JSON.stringify(cfg));updateBadge();alert('Konfigurasi disimpan di perangkat ini. Set juga ENV di Vercel.');}
+function saveProfile(){
+  try{ var v=$('profileNameInput').value.trim(); if(v) state.user.name=v; save(); var st=$('profileStatus'); if(st) st.innerText='✅ Profil tersimpan: '+state.user.name; }catch(e){}
+}
+function saveConfig(){
+  try{
+    var old={}; try{ old=JSON.parse(localStorage.getItem('swara_cfg')||'{}'); }catch(e){}
+    var cfg={ supabaseUrl: $('cfgSupabaseUrl').value.trim() || old.supabaseUrl || '', supabaseKey: $('cfgSupabaseKey').value.trim() || old.supabaseKey || '', gemini: $('cfgGemini').value.trim() || old.gemini || '' };
+    try{ localStorage.setItem('swara_cfg', JSON.stringify(cfg)); }catch(e){}
+    try{ updateBadge(); }catch(e){}
+    var st=$('cfgStatus'); if(st) st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');
+    // refill fields so user sees it persisted
+    try{ fillConfigFields(); }catch(e){}
+  }catch(e){ var st2=$('cfgStatus'); if(st2) st2.innerText='Gagal simpan: '+e.message; }
+}
+function fillConfigFields(){
+  try{
+    var c=JSON.parse(localStorage.getItem('swara_cfg')||'{}');
+    if(c.supabaseUrl && $('cfgSupabaseUrl')) $('cfgSupabaseUrl').value=c.supabaseUrl;
+    if(c.supabaseKey && $('cfgSupabaseKey')) $('cfgSupabaseKey').value=c.supabaseKey;
+    if(c.gemini && $('cfgGemini')) $('cfgGemini').value=c.gemini;
+  }catch(e){}
+}
+
 function updateBadge(){let cfg=JSON.parse(localStorage.getItem('swara_cfg')||'{}');$('geminiBadge').innerText=cfg.gemini?'● Gemini: Terhubung (Lokal)':'● Gemini: Belum Terhubung';if(cfg.supabaseUrl)$('backendStatus').innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;}
 function setTheme(v){if(v==='dark'){document.body.style.background='#111318';document.body.style.color='#fff';}else{document.body.style.background='#fff';document.body.style.color='#111318';}}
 function renderAll(){updateCount();updateBadge();$('credits').innerText=state.credits+' / 100';$('creditBar').style.width=state.credits+'%';$('profileName').innerText=state.user.name;$('profileEmail').innerText=state.user.email;$('avatarBtn').innerText=state.user.name[0].toUpperCase();
@@ -120,5 +141,5 @@ $('historyList').innerHTML=html;$('recentHome').innerHTML=html;$('recentCreate')
 $('myAgentsHome').innerHTML=state.agents.slice(0,2).map(a=>`<div class="card" style="margin-bottom:10px"><b>${a.name}</b><div class="small">${a.desc}</div></div>`).join('');
 $('myAgents').innerHTML=state.agents.map((a,i)=>`<div class="card" style="margin-bottom:10px"><b>${a.name}</b><div class="small">${a.desc}</div><button class="btn btn-ghost" style="margin-top:8px" onclick="state.agents.splice(${i},1);save()">Hapus</button></div>`).join('');
 $('templates').innerHTML=['Personal Assistant','Business Assistant','Customer Service Agent','Education Assistant','English Learning Assistant','Islamic Learning Assistant'].map(t=>`<div class="card" style="margin-bottom:10px"><b>${t}</b><div class="small">Template siap pakai</div><button class="btn btn-ghost" style="margin-top:8px" onclick="state.agents.push({name:'${t}',desc:'Dari template',lang:'ID'});save()">Use Template</button></div>`).join('');}
-renderAll();newChat();
+renderAll(); try{fillConfigFields();}catch(e){} newChat();
 </script><script>setTimeout(function(){var s=document.getElementById('splash');if(s){s.style.display='none';}},3000);document.addEventListener('click',function(){var s=document.getElementById('splash');if(s&&s.style.display!=='none'){/* only hide if user tapped Lewati area */}});</script></body></html>
