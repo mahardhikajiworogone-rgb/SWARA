@@ -100,7 +100,7 @@ function __md(s){ var e=__escapeHtml(s); e=e.replace(/\*\*([^\*]+)\*\*/g,'<b>$1<
 
 <section id="page-talk" class="page"><h2>AI Talk</h2><span class="badge" id="talkStatus">● Disconnected</span>
 <div class="card" style="margin-top:12px"><div id="chatBox" style="min-height:160px;border:1px solid #EEE;border-radius:12px;padding:10px;background:#F9FAFB"></div><br>
-<input id="chatInput" placeholder="Tulis pesan..."><br><br><div class="row"><button class="btn btn-red" id="btnSendChat" onclick="try{var inp=document.getElementById('chatInput');var msg=inp.value.trim();if(!msg)return false;var box=document.getElementById('chatBox');function __add(t){var d=document.createElement('div');d.style.cssText='background:#fff;border:1px solid #EEE;border-radius:10px;padding:10px;margin:6px 0';try{ d.innerHTML=__md(t); }catch(e){ d.textContent=t; }box.appendChild(d);box.scrollTop=box.scrollHeight;}__add('Kamu: '+msg);inp.value='';var ts=document.getElementById('talkStatus');if(ts)ts.innerText='● Thinking...';var cfg={};try{cfg=__swaraLoadCfg();}catch(e){}var st=document.getElementById('chatStatus');if(cfg.gemini){if(st)st.innerText='Menghubungi /api/chat (Vercel)...';fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})}).then(function(r){return r.text().then(function(t){return {status:r.status, ok:r.ok, text:t};});}).then(function(res){var d={};try{d=JSON.parse(res.text);}catch(e){}if(!res.ok){__add('SWARA (Lokal): /api/chat error HTTP '+res.status+' - '+res.text.slice(0,120));if(ts)ts.innerText='● Gagal /api/chat ('+res.status+')';if(st)st.innerText='HTTP '+res.status+' - /api/chat tidak ketemu / error. Cek folder api/ di GitHub.';return;}__add('SWARA: '+(d.reply||'Tidak ada balasan'));if(ts)ts.innerText='● Terhubung';if(st)st.innerText='Dijawab via /api/chat (HTTP '+res.status+').';}).catch(function(e){__add('SWARA (Lokal): Gagal hubungi /api/chat ('+e.message+'). Cek Vercel Deploy + folder api/.');if(ts)ts.innerText='● Gagal /api/chat';if(st)st.innerText='Fetch gagal: '+e.message;});}else{setTimeout(function(){__add('SWARA (Mode Lokal): Saya terima: \''+msg+'\'. Isi Gemini API Key di Account > Konfigurasi.');if(ts)ts.innerText='● Mode Lokal';if(st)st.innerText='Mode Lokal - kunci belum terbaca.';},300);}}catch(e){var st2=document.getElementById('chatStatus');if(st2)st2.innerText='Gagal kirim: '+e.message;} return false;">Kirim</button><p class="small" id="chatStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><button class="btn btn-ghost" onclick="try{var st=document.getElementById('chatStatus');if(st)st.innerText='Membacakan... 🔊 (cek volume HP)';speakLast();}catch(e){var st2=document.getElementById('chatStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">🔊 Bacakan</button></div><br>
+<input id="chatInput" placeholder="Tulis pesan..."><br><br><div class="row"><button class="btn btn-red" id="btnSendChat" onclick="sendChat();return false;">Kirim</button><p class="small" id="chatStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><button class="btn btn-ghost" onclick="try{var st=document.getElementById('chatStatus');if(st)st.innerText='Membacakan... 🔊 (cek volume HP)';speakLast();}catch(e){var st2=document.getElementById('chatStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">🔊 Bacakan</button></div><br>
 <div class="row"><button class="btn btn-white" onclick="startMic()">🎤 Start Voice</button><button class="btn btn-ghost" onclick="clearChat()">Clear</button><button class="btn btn-ghost" onclick="newChat()">New</button></div>
 <p class="small">Jika Gemini belum terhubung, balasan adalah mode lokal yang jujur + panduan aktivasi.</p></div></section>
 
@@ -112,7 +112,7 @@ function __md(s){ var e=__escapeHtml(s); e=e.replace(/\*\*([^\*]+)\*\*/g,'<b>$1<
 
 <section id="page-account" class="page"><h2>Account</h2>
 <div class="card"><b id="profileName">Guest</b><div class="small" id="profileEmail">guest@swara.local</div><br><label>Nama</label><input id="profileNameInput" placeholder="Nama kamu"><br><br><button class="btn btn-ghost" onclick="try{var v=document.getElementById('profileNameInput').value.trim();if(v){state.user.name=v;save();}var st=document.getElementById('profileStatus');if(st)st.innerText='✅ Profil tersimpan: '+state.user.name;this.innerText='✅ Tersimpan!';}catch(e){} return false;">Simpan Profil</button><p class="small" id="profileStatus" style="color:#E5232E;font-weight:700;margin-top:8px"></p></div><br>
-<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v16-auth-supabase</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
+<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v17-history-streaming</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
 <div class="card"><h3>Preferensi</h3><label>Tema</label><select id="themeSel" onchange="setTheme(this.value)"><option value="light">Light (Default)</option><option value="dark">Dark</option></select></div><br>
 <div class="card"><h3>Subscription</h3><p>Free — Tahap 1. Pembayaran belum aktif.</p><button class="btn btn-ghost" onclick="alert('Billing belum aktif di Tahap 1.')">Billing History</button></div><br>
 <button class="btn btn-white" onclick="logout()">Logout</button><br><br><button class="btn btn-ghost" style="color:#E5232E" onclick="deleteAccount()">Delete Account</button></section>
@@ -166,9 +166,84 @@ let lastText='';function generateVoice(){
 }
 function pauseVoice(){speechSynthesis.pause();}function stopVoice(){speechSynthesis.cancel();}
 function saveProject(){let t=$('ttsText').value.trim();if(!t)return alert('Isi teks dulu');state.projects.unshift({name:t.slice(0,28)||'Voice Project',type:'Voice',date:new Date().toLocaleString('id-ID')});save();alert('Disimpan ke History (lokal).');}
-function sendChat(){let inp=$('chatInput');let msg=inp.value.trim();if(!msg)return;addChat('Kamu: '+msg);inp.value='';$('talkStatus').innerText='● Thinking...';let cfg={}; try{ cfg=__swaraLoadCfg(); }catch(e){ try{ cfg=JSON.parse(localStorage.getItem('swara_cfg')||'{}'); }catch(e2){} }
-if(cfg.gemini){fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})}).then(r=>r.json()).then(d=>{addChat('SWARA: '+(d.reply||'Tidak ada balasan'));}).catch(()=>{addChat('SWARA (Lokal): Gagal hubungi /api/chat. Cek Vercel + GEMINI_API_KEY.');});}
-else{setTimeout(()=>{addChat('SWARA (Mode Lokal — AI belum terhubung): Saya terima: "'+msg+'". Isi Gemini API Key di Account > Konfigurasi, lalu deploy ke Vercel.');$('talkStatus').innerText='● Mode Lokal';},600);}}
+/* ===== TAHAP 2 BAGIAN 2 - HISTORY DB + TALK STREAMING (v17) ===== */
+async function __supaRest(method, table, query, body){
+  var c=__supaCfg(); var sess=__supaLoadSession(); if(!sess||!sess.access_token) throw new Error('Belum login Supabase');
+  var h={'apikey':c.key,'Authorization':'Bearer '+sess.access_token,'Content-Type':'application/json','Prefer':'return=representation'};
+  var r=await fetch(c.url+'/rest/v1/'+table+(query||''),{method:method,headers:h,body:body?JSON.stringify(body):undefined});
+  var t=await r.text(); var d={}; try{ d=JSON.parse(t); }catch(e){ d=t; }
+  if(!r.ok) throw new Error((d&&d.message)||('HTTP '+r.status));
+  return d;
+}
+async function __supaEnsureConversation(firstMsg){
+  try{
+    var cid=localStorage.getItem('swara_conv_id'); if(cid) return cid;
+    var sess=__supaLoadSession(); if(!sess||!sess.user||!sess.user.id) return null;
+    var rows=await __supaRest('POST','conversations','',[{user_id:sess.user.id, title:(firstMsg||'Percakapan').slice(0,60)}]);
+    if(rows&&rows[0]&&rows[0].id){ localStorage.setItem('swara_conv_id', rows[0].id); return rows[0].id; }
+  }catch(e){ console.log('conv fail', e.message); }
+  return null;
+}
+async function __supaSaveTalk(userMsg, aiReply){
+  try{
+    if(!state.user||state.user.auth!=='supabase') return;
+    var cid=await __supaEnsureConversation(userMsg); if(!cid) return;
+    await __supaRest('POST','conversation_messages','',[{conversation_id:cid, role:'user', content:userMsg}]);
+    await __supaRest('POST','conversation_messages','',[{conversation_id:cid, role:'assistant', content:aiReply}]);
+  }catch(e){ console.log('save talk fail', e.message); }
+}
+async function __supaLoadHistory(){
+  try{
+    if(!state.user||state.user.auth!=='supabase') return;
+    var convs=await __supaRest('GET','conversations','?select=id,title,created_at&order=created_at.desc&limit=20');
+    var el=document.getElementById('historyList'); if(!el) return;
+    if(!convs||!convs.length){ el.innerHTML='<p class="small">Belum ada riwayat Talk di database. Chat dulu di Talk.</p>'; return; }
+    el.innerHTML='<p class="small" style="color:#E5232E;font-weight:700">Riwayat dari database Supabase ('+convs.length+')</p>'+convs.map(function(c){ return '<div class="card" style="margin-bottom:10px"><b>'+((c.title||'Percakapan').replace(/</g,'&lt;'))+'</b><div class="small">'+(c.created_at||'').slice(0,16).replace('T',' ')+' • Supabase</div></div>'; }).join('');
+  }catch(e){ console.log('load history fail', e.message); }
+}
+try{ var __origSafeShow17=__safeShow; __safeShow=function(p){ try{ __origSafeShow17(p); }catch(e){} if(p==='history'){ try{ __supaLoadHistory(); }catch(e){} } }; if(typeof showPage==='function'){ var __origShowPage17=showPage; } }catch(e){}
+async function sendChat(){
+  var inp=$('chatInput'); var msg=inp.value.trim(); if(!msg) return;
+  addChat('Kamu: '+msg); inp.value=''; $('talkStatus').innerText='● Thinking...';
+  var cfg={}; try{ cfg=__swaraLoadCfg(); }catch(e){}
+  if(!cfg.gemini){ setTimeout(function(){ addChat('SWARA (Mode Lokal): Saya terima: "'+msg+'". Isi Gemini API Key di Account > Konfigurasi.'); $('talkStatus').innerText='● Mode Lokal'; },300); return; }
+  // Bubble streaming
+  var box=$('chatBox'); var bubble=document.createElement('div'); bubble.style.cssText='background:#fff;border:1px solid #EEE;border-radius:10px;padding:10px;margin:6px 0'; bubble.innerHTML='SWARA: <span class="stream-text"></span><span class="stream-caret">▍</span>'; box.appendChild(bubble); box.scrollTop=box.scrollHeight;
+  var span=bubble.querySelector('.stream-text'); var full='';
+  function finishStream(){
+    try{ var caret=bubble.querySelector('.stream-caret'); if(caret) caret.remove(); }catch(e){}
+    try{ bubble.innerHTML=__md('SWARA: '+full); }catch(e){ bubble.textContent='SWARA: '+full; }
+    lastText='SWARA: '+full; $('talkStatus').innerText='● Terhubung';
+    try{ var st=document.getElementById('chatStatus'); if(st) st.innerText='Dijawab via /api/chat streaming.'; }catch(e){}
+    if(full) __supaSaveTalk(msg, full);
+  }
+  try{
+    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg, stream:true})});
+    var ctype=(res.headers.get('content-type')||'');
+    if(!res.ok || ctype.indexOf('text/event-stream')===-1){
+      // Fallback non-streaming JSON
+      var d={}; try{ d=await res.json(); }catch(e){ var t=await res.text().catch(function(){return '';}); d={reply:t}; }
+      full=d.reply||'Tidak ada balasan'; bubble.remove(); addChat('SWARA: '+full); $('talkStatus').innerText='● Terhubung'; if(full) __supaSaveTalk(msg, full); return;
+    }
+    var reader=res.body.getReader(); var decoder=new TextDecoder(); var buf='';
+    while(true){
+      var chunk=await reader.read(); if(chunk.done) break;
+      buf+=decoder.decode(chunk.value,{stream:true});
+      var lines=buf.split('\n'); buf=lines.pop();
+      for(var i=0;i<lines.length;i++){
+        var line=lines[i].trim(); if(line.indexOf('data:')!==0) continue;
+        var payload=line.slice(5).trim(); if(!payload||payload==='[DONE]') continue;
+        try{ var j=JSON.parse(payload); if(j.text){ full+=j.text; span.textContent=full; box.scrollTop=box.scrollHeight; } }catch(e){}
+      }
+    }
+    if(!full){ full='Tidak ada balasan dari Gemini.'; }
+    finishStream();
+  }catch(e){
+    try{ bubble.remove(); }catch(_){}
+    addChat('SWARA (Lokal): Gagal hubungi /api/chat ('+e.message+'). Cek Vercel Deploy + folder api/.');
+    $('talkStatus').innerText='● Gagal /api/chat';
+  }
+}
 function addChat(t){let d=document.createElement('div');d.style.cssText='background:#fff;border:1px solid #EEE;border-radius:10px;padding:10px;margin:6px 0';try{ d.innerHTML=__md(t); }catch(e){ d.textContent=t; }$('chatBox').appendChild(d);lastText=t;}
 function speakLast(){
   try{
@@ -198,7 +273,7 @@ function speakLast(){
     if(st) st.innerText='Membacakan... 🔊 (cek volume HP)';
   }catch(e){ var st2=document.getElementById('chatStatus'); if(st2) st2.innerText='Gagal bersuara: '+e.message; }
 }
-function clearChat(){$('chatBox').innerHTML='';}function newChat(){clearChat();addChat('SWARA: Halo! Apa yang mau dibuat hari ini?');}
+function clearChat(){$('chatBox').innerHTML='';}function newChat(){try{localStorage.removeItem('swara_conv_id');}catch(e){}clearChat();addChat('SWARA: Halo! Apa yang mau dibuat hari ini?');}
 function startMic(){if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window))return alert('Speech Recognition belum didukung. Pakai Chrome Android.');let SR=window.SpeechRecognition||window.webkitSpeechRecognition;let r=new SR();r.lang='id-ID';r.onresult=e=>{$('chatInput').value=e.results[0][0].transcript;sendChat();};r.start();$('talkStatus').innerText='● Listening...';}
 let step=1;function openBuilder(){step=1;$('builder').classList.remove('hidden');renderStep();}
 function renderStep(){let titles=['Basic Information','Personality & Instructions','Language & Voice','Knowledge Base','Memory','Tools & Permissions','Test Agent','Save Agent'];$('stepLabel').innerText='Step '+step+' / 8 — '+titles[step-1];
