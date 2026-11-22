@@ -112,7 +112,7 @@ function __md(s){ var e=__escapeHtml(s); e=e.replace(/\*\*([^\*]+)\*\*/g,'<b>$1<
 
 <section id="page-account" class="page"><h2>Account</h2>
 <div class="card"><b id="profileName">Guest</b><div class="small" id="profileEmail">guest@swara.local</div><br><label>Nama</label><input id="profileNameInput" placeholder="Nama kamu"><br><br><button class="btn btn-ghost" onclick="try{var v=document.getElementById('profileNameInput').value.trim();if(v){state.user.name=v;save();}var st=document.getElementById('profileStatus');if(st)st.innerText='✅ Profil tersimpan: '+state.user.name;this.innerText='✅ Tersimpan!';}catch(e){} return false;">Simpan Profil</button><p class="small" id="profileStatus" style="color:#E5232E;font-weight:700;margin-top:8px"></p></div><br>
-<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v18-history-fix</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
+<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v19-typewriter</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
 <div class="card"><h3>Preferensi</h3><label>Tema</label><select id="themeSel" onchange="setTheme(this.value)"><option value="light">Light (Default)</option><option value="dark">Dark</option></select></div><br>
 <div class="card"><h3>Subscription</h3><p>Free — Tahap 1. Pembayaran belum aktif.</p><button class="btn btn-ghost" onclick="alert('Billing belum aktif di Tahap 1.')">Billing History</button></div><br>
 <button class="btn btn-white" onclick="logout()">Logout</button><br><br><button class="btn btn-ghost" style="color:#E5232E" onclick="deleteAccount()">Delete Account</button></section>
@@ -211,37 +211,25 @@ async function sendChat(){
   addChat('Kamu: '+msg); inp.value=''; $('talkStatus').innerText='● Thinking...';
   var cfg={}; try{ cfg=__swaraLoadCfg(); }catch(e){}
   if(!cfg.gemini){ setTimeout(function(){ addChat('SWARA (Mode Lokal): Saya terima: "'+msg+'". Isi Gemini API Key di Account > Konfigurasi.'); $('talkStatus').innerText='● Mode Lokal'; },300); return; }
-  // Bubble streaming
   var box=$('chatBox'); var bubble=document.createElement('div'); bubble.style.cssText='background:#fff;border:1px solid #EEE;border-radius:10px;padding:10px;margin:6px 0'; bubble.innerHTML='SWARA: <span class="stream-text"></span><span class="stream-caret">▍</span>'; box.appendChild(bubble); box.scrollTop=box.scrollHeight;
-  var span=bubble.querySelector('.stream-text'); var full='';
-  function finishStream(){
+  var span=bubble.querySelector('.stream-text');
+  try{
+    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+    var d={}; try{ d=await res.json(); }catch(e){ var t=await res.text().catch(function(){return '';}); d={reply:t}; }
+    var full=(d.reply||'').trim();
+    if(!full){ bubble.remove(); addChat('SWARA: Tidak ada balasan dari server (HTTP '+res.status+'). Coba lagi ya.'); $('talkStatus').innerText='● Gagal'; return; }
+    // Efek typewriter: tampilkan kata per kata di HP (tanpa SSE)
+    var words=full.match(/\S+\s*/g) || [full];
+    var shown='';
+    for(var wi=0; wi<words.length; wi++){
+      shown+=words[wi]; span.textContent=shown; box.scrollTop=box.scrollHeight;
+      if(wi%2===0) await new Promise(function(r){ setTimeout(r, 12); });
+    }
     try{ var caret=bubble.querySelector('.stream-caret'); if(caret) caret.remove(); }catch(e){}
     try{ bubble.innerHTML=__md('SWARA: '+full); }catch(e){ bubble.textContent='SWARA: '+full; }
     lastText='SWARA: '+full; $('talkStatus').innerText='● Terhubung';
-    try{ var st=document.getElementById('chatStatus'); if(st) st.innerText='Dijawab via /api/chat streaming.'; }catch(e){}
+    try{ var st=document.getElementById('chatStatus'); if(st) st.innerText='Dijawab via /api/chat (JSON + typewriter).'; }catch(e){}
     if(full) __supaSaveTalk(msg, full);
-  }
-  try{
-    var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg, stream:true})});
-    var ctype=(res.headers.get('content-type')||'');
-    if(!res.ok || ctype.indexOf('text/event-stream')===-1){
-      // Fallback non-streaming JSON
-      var d={}; try{ d=await res.json(); }catch(e){ var t=await res.text().catch(function(){return '';}); d={reply:t}; }
-      full=d.reply||'Tidak ada balasan'; bubble.remove(); addChat('SWARA: '+full); $('talkStatus').innerText='● Terhubung'; if(full) __supaSaveTalk(msg, full); return;
-    }
-    var reader=res.body.getReader(); var decoder=new TextDecoder(); var buf='';
-    while(true){
-      var chunk=await reader.read(); if(chunk.done) break;
-      buf+=decoder.decode(chunk.value,{stream:true});
-      var lines=buf.split('\n'); buf=lines.pop();
-      for(var i=0;i<lines.length;i++){
-        var line=lines[i].trim(); if(line.indexOf('data:')!==0) continue;
-        var payload=line.slice(5).trim(); if(!payload||payload==='[DONE]') continue;
-        try{ var j=JSON.parse(payload); if(j.text){ full+=j.text; span.textContent=full; box.scrollTop=box.scrollHeight; } }catch(e){}
-      }
-    }
-    if(!full){ full='Tidak ada balasan dari Gemini.'; }
-    finishStream();
   }catch(e){
     try{ bubble.remove(); }catch(_){}
     addChat('SWARA (Lokal): Gagal hubungi /api/chat ('+e.message+'). Cek Vercel Deploy + folder api/.');
