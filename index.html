@@ -93,7 +93,7 @@ function __md(s){ var e=__escapeHtml(s); e=e.replace(/\*\*([^\*]+)\*\*/g,'<b>$1<
 <div class="row" style="justify-content:space-between"><span class="small" id="charCount">0 karakter</span><button onclick="clearText()" style="border:0;background:none;color:#E5232E;font-weight:700;cursor:pointer">Hapus Teks</button></div><br>
 <label>Bahasa</label><select id="lang"><option value="id">Indonesia</option><option value="en">English</option></select><br><br><label>Voice</label><select id="voiceSelect"></select><br><br>
 <label>Speed: <span id="speedVal">1.0</span></label><input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1" oninput="document.getElementById('speedVal').innerText=this.value"><br><br>
-<label>Suara Gemini TTS</label><select id="geminiVoice"><option value="Kore">Kore — Perempuan, lembut (default)</option><option value="Fenrir">Fenrir — Laki-laki, tegas</option><option value="Zephyr">Zephyr — Perempuan, cerah</option><option value="Charon">Charon — Laki-laki, dalam</option><option value="Sulafat">Sulafat — Perempuan, hangat</option><option value="Puck">Puck — Laki-laki, ceria</option></select><br><br><label>Gaya Bicara (opsional)</label><select id="geminiStyle"><option value="">Natural — seperti ngobrol</option><option value="ceria dan bersemangat">Ceria & bersemangat</option><option value="tenang dan elegan">Tenang & elegan</option><option value="seperti penyiar berita">Penyiar berita</option><option value="seperti mendongeng untuk anak">Mendongeng anak</option></select><br><br><button class="btn btn-red" onclick="generateVoice()">▶ Generate Voice (Gemini TTS)</button> <button class="btn btn-white" id="btnDownloadVoice" onclick="downloadVoice()" style="display:none">⬇ Download WAV</button><p class="small" id="genStatus"></p><audio id="geminiAudio" controls style="width:100%;display:none;margin-top:8px"></audio>
+<div class="card" style="border:2px solid #E5232E;margin-bottom:12px"><h3>🎤 Clone Suara Saya (ElevenLabs)</h3><p class="small">Rekam 1-3 menit pakai Bahasa Indonesia, suara bersih. Setelah jadi, teks baru apa pun akan dibacakan pakai suaramu.</p><label>Nama Suara Clone</label><input id="cloneName" placeholder="cth: Suara Febrianto" value="Suara Saya"><br><br><button class="btn btn-red" id="btnRecClone" onclick="toggleCloneRec()">● Mulai Rekam (1-3 menit)</button> <span class="small" id="cloneRecStatus">Belum merekam</span><br><br><audio id="clonePreview" controls style="width:100%;display:none"></audio><br><button class="btn btn-white" id="btnCreateClone" onclick="createClone()" style="display:none">✨ Buat Clone Suara Saya</button><p class="small" id="cloneStatus"></p><div id="cloneResult" style="display:none"><label>Suara Clone Aktif</label><input id="cloneVoiceId" readonly placeholder="voice_id akan muncul di sini"><br><span class="small" style="color:#1a7f37;font-weight:700">✅ Clone aktif — Generate Voice di bawah akan pakai suaramu kalau mode ElevenLabs dipilih.</span></div></div><label>Mesin Suara</label><select id="ttsEngine"><option value="gemini">Gemini TTS — 6 suara bawaan (gratis, tanpa kuota ElevenLabs)</option><option value="elevenlabs">ElevenLabs — Suara Clone Saya (kuota ~10 menit/bulan free)</option></select><br><br><label>Suara Gemini TTS</label><select id="geminiVoice"><option value="Kore">Kore — Perempuan, lembut (default)</option><option value="Fenrir">Fenrir — Laki-laki, tegas</option><option value="Zephyr">Zephyr — Perempuan, cerah</option><option value="Charon">Charon — Laki-laki, dalam</option><option value="Sulafat">Sulafat — Perempuan, hangat</option><option value="Puck">Puck — Laki-laki, ceria</option></select><br><br><label>Gaya Bicara (opsional)</label><select id="geminiStyle"><option value="">Natural — seperti ngobrol</option><option value="ceria dan bersemangat">Ceria & bersemangat</option><option value="tenang dan elegan">Tenang & elegan</option><option value="seperti penyiar berita">Penyiar berita</option><option value="seperti mendongeng untuk anak">Mendongeng anak</option></select><br><br><button class="btn btn-red" onclick="generateVoice()">▶ Generate Voice (Gemini TTS)</button> <button class="btn btn-white" id="btnDownloadVoice" onclick="downloadVoice()" style="display:none">⬇ Download WAV</button><p class="small" id="genStatus"></p><audio id="geminiAudio" controls style="width:100%;display:none;margin-top:8px"></audio>
 <div class="row"><button class="btn btn-ghost" onclick="pauseVoice()">⏸ Pause</button><button class="btn btn-ghost" onclick="stopVoice()">⏹ Stop</button></div><br>
 <label>Volume</label><input type="range" id="vol" min="0" max="1" step="0.1" value="1"><br><br><button class="btn btn-white" onclick="saveProject()">💾 Simpan ke History</button></div>
 <h3>Recent Voice Projects</h3><div id="recentCreate"></div></section>
@@ -112,7 +112,7 @@ function __md(s){ var e=__escapeHtml(s); e=e.replace(/\*\*([^\*]+)\*\*/g,'<b>$1<
 
 <section id="page-account" class="page"><h2>Account</h2>
 <div class="card"><b id="profileName">Guest</b><div class="small" id="profileEmail">guest@swara.local</div><br><label>Nama</label><input id="profileNameInput" placeholder="Nama kamu"><br><br><button class="btn btn-ghost" onclick="try{var v=document.getElementById('profileNameInput').value.trim();if(v){state.user.name=v;save();}var st=document.getElementById('profileStatus');if(st)st.innerText='✅ Profil tersimpan: '+state.user.name;this.innerText='✅ Tersimpan!';}catch(e){} return false;">Simpan Profil</button><p class="small" id="profileStatus" style="color:#E5232E;font-weight:700;margin-top:8px"></p></div><br>
-<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v21-gemini-tts</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
+<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v22-elevenlabs-clone</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
 <div class="card"><h3>Preferensi</h3><label>Tema</label><select id="themeSel" onchange="setTheme(this.value)"><option value="light">Light (Default)</option><option value="dark">Dark</option></select></div><br>
 <div class="card"><h3>Subscription</h3><p>Free — Tahap 1. Pembayaran belum aktif.</p><button class="btn btn-ghost" onclick="alert('Billing belum aktif di Tahap 1.')">Billing History</button></div><br>
 <button class="btn btn-white" onclick="logout()">Logout</button><br><br><button class="btn btn-ghost" style="color:#E5232E" onclick="deleteAccount()">Delete Account</button></section>
@@ -182,6 +182,60 @@ function deleteAccount(){if(confirm('Hapus akun & data lokal?')){localStorage.re
 function clearText(){$('ttsText').value='';updateCount();}function updateCount(){$('charCount').innerText=$('ttsText').value.length+' karakter';}
 function loadVoices(){ try{ if(!window.speechSynthesis) return; let v=$('voiceSelect'); if(!v) return; v.innerHTML=''; speechSynthesis.getVoices().forEach((vo,i)=>{let o=document.createElement('option');o.value=i;o.textContent=vo.name+' — '+vo.lang;v.appendChild(o);}); }catch(e){} }
 try{ if(window.speechSynthesis){ speechSynthesis.onvoiceschanged=loadVoices; loadVoices(); } }catch(e){}
+
+// ===== ELEVENLABS CLONE (v22) =====
+let __cloneRecorder=null, __cloneChunks=[], __cloneBlob=null, __cloneTimer=null, __cloneSecs=0;
+function toggleCloneRec(){
+  try{
+    var btn=document.getElementById('btnRecClone');
+    if(__cloneRecorder && __cloneRecorder.state==='recording'){ stopCloneRec(); return; }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ alert('Browser ini tidak mendukung rekam suara. Pakai Chrome terbaru.'); return; }
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      __cloneChunks=[]; __cloneBlob=null;
+      __cloneRecorder=new MediaRecorder(stream, {mimeType:(window.MediaRecorder && MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '')});
+      __cloneRecorder.ondataavailable=function(e){ if(e.data && e.data.size) __cloneChunks.push(e.data); };
+      __cloneRecorder.onstop=function(){ try{ stream.getTracks().forEach(function(tr){ tr.stop(); }); }catch(e){} finishCloneRec(); };
+      __cloneRecorder.start(250); __cloneSecs=0;
+      if(btn) btn.innerText='■ Stop Rekam';
+      var st=document.getElementById('cloneRecStatus'); if(st) st.innerText='Merekam... 0 detik — ngomong Bahasa Indonesia yang natural ya...';
+      clearInterval(__cloneTimer); __cloneTimer=setInterval(function(){ __cloneSecs++; var s2=document.getElementById('cloneRecStatus'); if(s2) s2.innerText='Merekam... '+__cloneSecs+' detik'+(__cloneSecs<60 ? ' — minimal 60 detik ya' : ' — sudah cukup, boleh Stop'); if(__cloneSecs>=180){ stopCloneRec(); } }, 1000);
+    }).catch(function(e){ alert('Gagal akses mikrofon: '+e.message+'\n\nIzinkan akses mikrofon di browser.'); });
+  }catch(e){ alert('Gagal rekam: '+e.message); }
+}
+function stopCloneRec(){ try{ clearInterval(__cloneTimer); if(__cloneRecorder && __cloneRecorder.state==='recording') __cloneRecorder.stop(); var btn=document.getElementById('btnRecClone'); if(btn) btn.innerText='● Mulai Rekam (1-3 menit)'; }catch(e){} }
+function finishCloneRec(){
+  try{
+    __cloneBlob=new Blob(__cloneChunks, {type:'audio/webm'});
+    var url=URL.createObjectURL(__cloneBlob);
+    var au=document.getElementById('clonePreview'); if(au){ au.src=url; au.style.display='block'; }
+    var b=document.getElementById('btnCreateClone'); if(b) b.style.display='inline-block';
+    var st=document.getElementById('cloneRecStatus'); if(st) st.innerText='Rekaman selesai: '+__cloneSecs+' detik ('+Math.round(__cloneBlob.size/1024)+' KB). Dengarkan dulu, kalau sudah bagus klik Buat Clone.';
+    if(__cloneSecs<60){ var st2=document.getElementById('cloneRecStatus'); if(st2) st2.innerText+=' ⚠️ Kurang dari 60 detik — ElevenLabs bisa nolak. Rekam ulang lebih panjang ya.'; }
+  }catch(e){ alert('Gagal proses rekaman: '+e.message); }
+}
+function __blobToB64(blob){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ try{ res(String(r.result).split(',')[1]||''); }catch(e){ rej(e); } }; r.onerror=rej; r.readAsDataURL(blob); }); }
+async function createClone(){
+  try{
+    if(!__cloneBlob){ alert('Rekam dulu 1-3 menit.'); return; }
+    if(__cloneSecs<60 && !confirm('Rekamanmu kurang dari 60 detik ('+__cloneSecs+' detik). ElevenLabs bisa nolak. Tetap lanjut?')) return;
+    var st=document.getElementById('cloneStatus'); if(st) st.innerText='Mengirim rekaman ke ElevenLabs... tunggu 10-30 detik...';
+    var name='Suara Saya'; try{ name=document.getElementById('cloneName').value.trim()||'Suara Saya'; }catch(e){}
+    var b64=await __blobToB64(__cloneBlob);
+    var r=await fetch('/api/clone',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name, audioBase64:b64, fileName:'swara-sample.webm'})});
+    var d=await r.json().catch(function(){ return {}; });
+    if(d && d.voice_id){
+      var cr=document.getElementById('cloneResult'); if(cr) cr.style.display='block';
+      var vi=document.getElementById('cloneVoiceId'); if(vi) vi.value=d.voice_id;
+      try{ localStorage.setItem('swara_clone_voice_id', d.voice_id); localStorage.setItem('swara_clone_name', name); }catch(e){}
+      if(st) st.innerText='✅ Clone berhasil dibuat! Voice ID tersimpan. Sekarang pilih Mesin Suara = ElevenLabs di bawah, lalu Generate Voice.';
+      var eng=document.getElementById('ttsEngine'); if(eng) eng.value='elevenlabs';
+    } else {
+      if(st) st.innerText='Gagal bikin clone: '+((d&&d.error)||'Tidak ada respons.');
+    }
+  }catch(e){ var st2=document.getElementById('cloneStatus'); if(st2) st2.innerText='Gagal: '+e.message; }
+}
+// Saat halaman dibuka, pulihkan Voice ID clone yang tersimpan
+try{ (function(){ var vid=''; try{ vid=localStorage.getItem('swara_clone_voice_id')||''; }catch(e){} if(vid){ var cr2=document.getElementById('cloneResult'); if(cr2) cr2.style.display='block'; var vi2=document.getElementById('cloneVoiceId'); if(vi2) vi2.value=vid; } })(); }catch(e){}
 let lastText='';let __geminiWavUrl='';let __geminiWavBlob=null;
 function __pcmToWav(b64, rate){
   try{
@@ -199,6 +253,31 @@ function downloadVoice(){
   }catch(e){ alert('Gagal download: '+e.message); }
 }
 async function generateVoice(){
+  try{
+    var __eng='gemini'; try{ __eng=document.getElementById('ttsEngine').value||'gemini'; }catch(e){}
+    if(__eng==='elevenlabs'){
+      var __txt=''; try{ __txt=document.getElementById('voiceText') ? document.getElementById('voiceText').value.trim() : ''; }catch(e){}
+      if(!__txt){ var __ta=document.querySelector('textarea'); if(__ta) __txt=__ta.value.trim(); }
+      if(!__txt){ var __st=$('genStatus'); if(__st) __st.innerText='Isi teks dulu.'; return; }
+      var __vid=''; try{ __vid=document.getElementById('cloneVoiceId').value.trim()||localStorage.getItem('swara_clone_voice_id')||''; }catch(e){}
+      if(!__vid){ var __st2=$('genStatus'); if(__st2) __st2.innerText='Voice ID clone belum ada. Bikin clone dulu di atas.'; return; }
+      var __st3=$('genStatus'); if(__st3) __st3.innerText='ElevenLabs lagi bikin suara pakai suaramu... (kuota free ~10 menit/bulan)';
+      var __r=await fetch('/api/voice-eleven',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:__txt, voice_id:__vid})});
+      var __d=await __r.json().catch(function(){ return {}; });
+      if(__d && __d.audioBase64){
+        var __blob=new Blob([Uint8Array.from(atob(__d.audioBase64), function(c){ return c.charCodeAt(0); })], {type:'audio/mpeg'});
+        try{ if(__geminiWavUrl) URL.revokeObjectURL(__geminiWavUrl); }catch(e){}
+        __geminiWavBlob=__blob; __geminiWavUrl=URL.createObjectURL(__blob);
+        var __au=document.getElementById('geminiAudio'); if(__au){ __au.src=__geminiWavUrl; __au.style.display='block'; __au.play().catch(function(){}); }
+        var __dl=document.getElementById('btnDownloadVoice'); if(__dl){ __dl.style.display='inline-block'; __dl.innerText='⬇ Download MP3 (Suara Saya)'; }
+        if(__st3) __st3.innerText='Selesai — suara ElevenLabs pakai suaramu! ✅ Bisa diputar ulang & di-download.';
+        return;
+      }
+      if(__st3) __st3.innerText='ElevenLabs gagal ('+((__d&&__d.error)||'Tidak ada audio')+') — coba lagi atau pakai Gemini TTS.';
+      return;
+    }
+  }catch(e){ var __stE=$('genStatus'); if(__stE) __stE.innerText='ElevenLabs error: '+e.message; return; }
+
   try{
     var txt=''; try{ txt=document.getElementById('voiceText') ? document.getElementById('voiceText').value.trim() : ''; }catch(e){}
     if(!txt){ var ta=document.querySelector('textarea'); if(ta) txt=ta.value.trim(); }
