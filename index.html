@@ -112,7 +112,7 @@ function __md(s){ var e=__escapeHtml(s); e=e.replace(/\*\*([^\*]+)\*\*/g,'<b>$1<
 
 <section id="page-account" class="page"><h2>Account</h2>
 <div class="card"><b id="profileName">Guest</b><div class="small" id="profileEmail">guest@swara.local</div><br><label>Nama</label><input id="profileNameInput" placeholder="Nama kamu"><br><br><button class="btn btn-ghost" onclick="try{var v=document.getElementById('profileNameInput').value.trim();if(v){state.user.name=v;save();}var st=document.getElementById('profileStatus');if(st)st.innerText='✅ Profil tersimpan: '+state.user.name;this.innerText='✅ Tersimpan!';}catch(e){} return false;">Simpan Profil</button><p class="small" id="profileStatus" style="color:#E5232E;font-weight:700;margin-top:8px"></p></div><br>
-<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v19-typewriter</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
+<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v20-google</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
 <div class="card"><h3>Preferensi</h3><label>Tema</label><select id="themeSel" onchange="setTheme(this.value)"><option value="light">Light (Default)</option><option value="dark">Dark</option></select></div><br>
 <div class="card"><h3>Subscription</h3><p>Free — Tahap 1. Pembayaran belum aktif.</p><button class="btn btn-ghost" onclick="alert('Billing belum aktif di Tahap 1.')">Billing History</button></div><br>
 <button class="btn btn-white" onclick="logout()">Logout</button><br><br><button class="btn btn-ghost" style="color:#E5232E" onclick="deleteAccount()">Delete Account</button></section>
@@ -137,7 +137,43 @@ async function __supaAuth(path, body, token){ var c=__supaCfg(); var h={'apikey'
 function __localLogin(e){ state.user={name:e.split('@')[0],email:e,mode:'user',auth:'local'}; save(); showPage('home'); }
 async function login(){ let e=$('email').value.trim(),pw=$('password').value; if(!e||!pw) return alert('Isi email & kata sandi'); if(pw.length<6) return alert('Kata sandi minimal 6 karakter (aturan Supabase).'); if(!__supaReady()){ alert('Supabase belum dikonfigurasi di Account > Konfigurasi. Masuk Mode Lokal dulu — akun belum tersimpan di database.'); __localLogin(e); return; } try{ var d=await __supaAuth('/auth/v1/token?grant_type=password',{email:e,password:pw}); if(!d.access_token) throw new Error('Login gagal — tidak ada token.'); __supaApplyUser(d.user||{email:e,id:''}, {access_token:d.access_token, refresh_token:d.refresh_token||'', user:d.user||{email:e}}); alert('Masuk berhasil — akun Supabase ✅'); showPage('home'); }catch(err){ alert('Gagal masuk: '+err.message+'\n\nCek: email sudah terdaftar? Kata sandi benar? Supabase URL & Anon Key di Account > Konfigurasi benar?'); } }
 async function register(){ let e=$('email').value.trim(),pw=$('password').value; if(!e||!pw) return alert('Isi email & kata sandi'); if(pw.length<6) return alert('Kata sandi minimal 6 karakter (aturan Supabase).'); if(!__supaReady()){ alert('Supabase belum dikonfigurasi di Account > Konfigurasi. Akun dibuat Mode Lokal saja — belum tersimpan di database.'); __localLogin(e); return; } try{ var d=await __supaAuth('/auth/v1/signup',{email:e,password:pw}); if(d.access_token){ __supaApplyUser(d.user||{email:e,id:''}, {access_token:d.access_token, refresh_token:d.refresh_token||'', user:d.user||{email:e}}); alert('Akun dibuat & langsung masuk ✅ (Supabase)'); showPage('home'); } else if(d.user && d.user.id){ alert('Akun dibuat ✅\n\nEmail konfirmasi mungkin aktif di Supabase. Cek inbox emailmu, klik link konfirmasi, lalu Masuk.'); showPage('welcome'); } else { alert('Akun dibuat. Silakan Masuk.'); showPage('welcome'); } }catch(err){ alert('Gagal daftar: '+err.message); } }
-function googleLogin(){ alert('Google OAuth belum diaktifkan di Supabase Dashboard > Authentication > Providers. Untuk Tahap 2 ini pakai Email dulu — Google menyusul.'); }
+function googleLogin(){
+  try{
+    if(!__supaReady()){ alert('Supabase belum dikonfigurasi di Account > Konfigurasi. Isi Supabase URL & Anon Key dulu, lalu coba lagi.'); return; }
+    var c=__supaCfg();
+    var redirect = window.location.origin + '/';
+    // Supabase OAuth authorize (REST, tanpa supabase-js) - sesuai setup Google Provider yang sudah ENABLED
+    window.location.href = c.url + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(redirect);
+  }catch(e){ alert('Gagal Google Login: ' + e.message); }
+}
+/* Tangkap callback Google OAuth: Supabase balik dengan #access_token=... di URL */
+function __supaHandleOAuthCallback(){
+  try{
+    var h = window.location.hash || '';
+    if(!h || h.indexOf('access_token=') < 0) return false;
+    var params = new URLSearchParams(h.substring(1));
+    var at = params.get('access_token'), rt = params.get('refresh_token') || '';
+    var type = params.get('type') || '';
+    if(!at) return false;
+    // Ambil profil user dari token ini
+    var c = __supaCfg();
+    fetch(c.url + '/auth/v1/user', {headers:{'apikey':c.key,'Authorization':'Bearer '+at}})
+      .then(function(r){ return r.json(); })
+      .then(function(u){
+        try{
+          __supaApplyUser(u || {email:''}, {access_token:at, refresh_token:rt, user:u});
+          try{ var pn=document.getElementById('profileName'); if(pn) pn.innerText=(state.user.name||'User')+'  \u2022 Supabase'; var pe=document.getElementById('profileEmail'); if(pe) pe.innerText=state.user.email; }catch(e){}
+          alert('Masuk dengan Google berhasil \u2705\nHalo, ' + (state.user.email||''));
+          showPage('home');
+        }catch(e){ alert('Masuk Google berhasil, tapi gagal simpan sesi: '+e.message); showPage('home'); }
+      })
+      .catch(function(e){ alert('Masuk Google berhasil, tapi gagal ambil profil: '+e.message); showPage('home'); });
+    // Bersihkan token dari URL biar tidak ke-copy / ke-screenshot
+    try{ history.replaceState(null,'', window.location.pathname + window.location.search); }catch(e){}
+    return true;
+  }catch(e){ return false; }
+}
+try{ __supaHandleOAuthCallback(); }catch(e){}
 async function forgot(){ let e=$('email').value.trim(); if(!e) return alert('Isi email dulu di kolom Email, lalu tap Lupa kata sandi?'); if(!__supaReady()){ alert('Supabase belum dikonfigurasi. Reset password butuh Supabase.'); return; } try{ var c=__supaCfg(); var r=await fetch(c.url+'/auth/v1/recover',{method:'POST',headers:{'apikey':c.key,'Content-Type':'application/json'},body:JSON.stringify({email:e})}); if(!r.ok){ var t=await r.text(); throw new Error(t.slice(0,150)); } alert('Link reset dikirim ke '+e+' ✅ Cek inbox / spam.'); }catch(err){ alert('Gagal kirim reset: '+err.message); } }
 async function logout(){ try{ var sess=__supaLoadSession(); if(sess && sess.access_token && __supaReady()){ var c=__supaCfg(); try{ await fetch(c.url+'/auth/v1/logout',{method:'POST',headers:{'apikey':c.key,'Authorization':'Bearer '+sess.access_token,'Content-Type':'application/json'},body:'{}'}); }catch(e){} } }catch(e){} __supaClearSession(); state.user={name:'Guest',email:'guest@swara.local',mode:'guest'}; save(); try{ var pn=document.getElementById('profileName'); if(pn) pn.innerText='Guest'; var pe=document.getElementById('profileEmail'); if(pe) pe.innerText='guest@swara.local'; }catch(e){} showPage('welcome'); }
 /* Pulihkan sesi Supabase saat app dibuka - tanpa logout paksa */
