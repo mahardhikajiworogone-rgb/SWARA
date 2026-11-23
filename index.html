@@ -78,7 +78,7 @@ function __md(s){ var e=__escapeHtml(s); e=e.replace(/\*\*([^\*]+)\*\*/g,'<b>$1<
 <link rel="icon" href="logo.jpg">
 
 <style id="swara-clean-v24">
-  /* v24-clean: sembunyikan semua indikator debug / platform */
+  /* v25-fix-create: sembunyikan semua indikator debug / platform */
   #geminiBadge{ display:none !important; }
   .swara-debug, .debug-badge, #cfgDebug, #cfgStatus{ display:none !important; }
   /* Banner Provider di Create + Status Tahap 1 di Login: sembunyikan via atribut data */
@@ -124,7 +124,7 @@ function __md(s){ var e=__escapeHtml(s); e=e.replace(/\*\*([^\*]+)\*\*/g,'<b>$1<
 
 <section id="page-account" class="page"><h2>Account</h2>
 <div class="card"><b id="profileName">Guest</b><div class="small" id="profileEmail">guest@swara.local</div><br><label>Nama</label><input id="profileNameInput" placeholder="Nama kamu"><br><br><button class="btn btn-ghost" onclick="try{var v=document.getElementById('profileNameInput').value.trim();if(v){state.user.name=v;save();}var st=document.getElementById('profileStatus');if(st)st.innerText='✅ Profil tersimpan: '+state.user.name;this.innerText='✅ Tersimpan!';}catch(e){} return false;">Simpan Profil</button><p class="small" id="profileStatus" style="color:#E5232E;font-weight:700;margin-top:8px"></p></div><br>
-<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v24-clean</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
+<div class="card"><h3>Konfigurasi Backend (Production) <span style='font-size:11px;color:#E5232E'>• v25-fix-create</span></h3><label>Supabase URL</label><input id="cfgSupabaseUrl" placeholder="https://xyz.supabase.co"><br><br><label>Supabase Anon Key</label><input id="cfgSupabaseKey" type="password" placeholder="eyJ..."><br><br><label>Gemini API Key</label><input id="cfgGemini" type="password" placeholder="AIza..."><br><br><button class="btn btn-red" id="btnSaveCfg" onclick="try{var u=document.getElementById('cfgSupabaseUrl').value.trim();var k=document.getElementById('cfgSupabaseKey').value.trim();var g=document.getElementById('cfgGemini').value.trim();var old={};try{old=__swaraLoadCfg()}catch(e){}var cfg={supabaseUrl:u||old.supabaseUrl||'',supabaseKey:k||old.supabaseKey||'',gemini:g||old.gemini||''};__swaraSaveCfg(cfg);var st=document.getElementById('cfgStatus');if(st)st.innerText='✅ Tersimpan! Gemini: '+(cfg.gemini?'Terhubung':'Belum diisi')+' • Supabase: '+(cfg.supabaseUrl?'Tersimpan':'Belum diisi');this.innerText='✅ Tersimpan!';var gb=document.getElementById('geminiBadge');if(gb&&cfg.gemini){gb.innerText='● Gemini: Terhubung (Lokal)';}var b=document.getElementById('backendStatus');if(b&&cfg.gemini){b.innerText='Supabase URL tersimpan lokal: '+cfg.supabaseUrl;} }catch(e){var st2=document.getElementById('cfgStatus');if(st2)st2.innerText='Gagal: '+e.message;} return false;">Simpan Konfigurasi</button><p class="small" id="cfgDebug" style="color:#888;font-size:11px;margin-top:4px"></p><p class="small" id="cfgStatus" style="color:#E5232E;font-weight:700;margin-top:8px;min-height:20px"></p><p class="small">Di production Gemini dipanggil lewat /api/chat (Vercel), bukan dari browser.</p></div><br>
 <div class="card"><h3>Preferensi</h3><label>Tema</label><select id="themeSel" onchange="setTheme(this.value)"><option value="light">Light (Default)</option><option value="dark">Dark</option></select></div><br>
 <div class="card"><h3>Subscription</h3><p>Free — Tahap 1. Pembayaran belum aktif.</p><button class="btn btn-ghost" onclick="alert('Billing belum aktif di Tahap 1.')">Billing History</button></div><br>
 <button class="btn btn-white" onclick="logout()">Logout</button><br><br><button class="btn btn-ghost" style="color:#E5232E" onclick="deleteAccount()">Delete Account</button></section>
@@ -473,51 +473,7 @@ function updateBadge(){
 }
 </script>
 
-<script>
-(function(){
-  function cleanSWARA(){
-    try{
-      // 1. Badge header
-      var b=document.getElementById('geminiBadge'); if(b) b.style.display='none';
-      // 2. Semua elemen yang teksnya mengandung indikator debug
-      var badPhrases=['Provider: Browser TTS','Gemini TTS belum terhubung','Status Tahap 1','Supabase URL tersimpan lokal','Mode Lokal','Tersimpan lokal'];
-      var els=document.querySelectorAll('p,div,span,small');
-      els.forEach(function(el){
-        try{
-          var txt=(el.innerText||'');
-          for(var i=0;i<badPhrases.length;i++){
-            if(txt.indexOf(badPhrases[i])>=0 && el.children.length===0){
-              // Naikkan ke card pembungkus terdekat kalau elemennya sendirian
-              var card=el.closest('.card, section, div');
-              // Hanya sembunyikan elemen teksnya, bukan seluruh card, kecuali status box login
-              if(badPhrases[i]==='Status Tahap 1' || badPhrases[i]==='Supabase URL tersimpan lokal'){
-                var box=el.closest('div'); if(box) box.style.display='none';
-              }
-              el.style.display='none';
-              break;
-            }
-          }
-        }catch(e){}
-      });
-      // 3. Banner provider di Create: cari elemen yang mengandung 'Provider:'
-      document.querySelectorAll('*').forEach(function(el){
-        try{ if(el.children.length===0 && (el.textContent||'').indexOf('Provider:')===0){ el.style.display='none'; if(el.parentElement) el.parentElement.style.display='none'; } }catch(e){}
-      });
-      // 4. Label versi v23 / v24 di judul Konfigurasi
-      document.querySelectorAll('span,small').forEach(function(el){
-        try{ if((el.textContent||'').indexOf('v23')>=0 || (el.textContent||'').indexOf('v24')>=0){ el.style.display='none'; } }catch(e){}
-      });
-    }catch(e){}
-  }
-  document.addEventListener('DOMContentLoaded', cleanSWARA);
-  window.addEventListener('load', function(){ setTimeout(cleanSWARA, 500); setTimeout(cleanSWARA, 1500); });
-  // Jalankan juga tiap pindah halaman (showPage)
-  try{
-    var _orig = window.showPage;
-    if(_orig){ window.showPage = function(p){ var r=_orig(p); setTimeout(cleanSWARA, 100); return r; }; }
-  }catch(e){}
-})();
-</script>
+
 
 <script>
 (function(){
@@ -548,6 +504,31 @@ function updateBadge(){
   }
   document.addEventListener('DOMContentLoaded', collapseCfg);
   window.addEventListener('load', function(){ setTimeout(collapseCfg, 600); });
+})();
+</script>
+
+<script>
+(function(){
+  function cleanV25(){
+    try{
+      var b=document.getElementById('geminiBadge'); if(b) b.style.display='none';
+      document.querySelectorAll('p,span,small').forEach(function(el){
+        try{
+          if(el.children.length!==0) return;
+          var txt=(el.textContent||'').trim();
+          if(txt.indexOf('Provider: Browser TTS')===0){ el.style.display='none'; return; }
+          if(txt.indexOf('Status Tahap 1')===0){ el.style.display='none'; return; }
+          if(txt.indexOf('Supabase URL tersimpan lokal')===0){ el.style.display='none'; return; }
+          if(txt.indexOf('Jika Gemini belum terhubung')===0){ el.style.display='none'; return; }
+        }catch(e){}
+      });
+      document.querySelectorAll('div.warn').forEach(function(el){
+        try{ if((el.textContent||'').indexOf('Status Tahap 1')>=0){ el.style.display='none'; } }catch(e){}
+      });
+    }catch(e){}
+  }
+  document.addEventListener('DOMContentLoaded', cleanV25);
+  window.addEventListener('load', function(){ setTimeout(cleanV25, 400); });
 })();
 </script>
 </body></html>
